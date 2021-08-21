@@ -28,18 +28,39 @@ app.set('port', port);
 
 const uri = `mongodb+srv://${MONGO_DB_USER}:${encodeURIComponent(MONGO_DB_PASSWORD)}@${MONGO_DB_CLUSTER_URL}?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-client.connect().then((connection) => {
-  app.locals.db = connection.db('english-for-kids');
+client
+  .connect()
+  .then((connection) => {
+    app.locals.db = connection.db('english-for-kids');
 
-  server = http.createServer(app);
+    server = http.createServer(app);
 
-  /**
-   * Listen on provided port, on all network interfaces.
-   */
+    /**
+     * Listen on provided port, on all network interfaces.
+     */
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
 
-  server.listen(port);
-  server.on('error', onError);
-  server.on('listening', onListening);
+    const terminate = () => {
+      console.log('Terminating...');
+      connection.close();
+    };
+
+    //do something when app is closing
+    process.once('exit', terminate);
+
+    //catches ctrl+c event
+    process.once('SIGINT', terminate);
+
+    // catches "kill pid" (for example: nodemon restart)
+    process.once('SIGUSR1', terminate);
+    process.once('SIGUSR2', terminate);
+
+    //catches uncaught exceptions
+    process.once('uncaughtException', terminate);
+  }).catch((e) => {
+  console.error(e);
 });
 
 /**
