@@ -4,12 +4,23 @@
  * Module dependencies.
  */
 
-require('dotenv').config();
+require("dotenv").config();
 
-var app = require('../app');
-var debug = require('debug')('english-for-kids-backend:server');
-var http = require('http');
-const { MongoClient } = require('mongodb');
+var app = require("../app");
+var debug = require("debug")("english-for-kids-backend:server");
+var http = require("http");
+const { MongoClient } = require("mongodb");
+
+const {
+  CategoriesService,
+} = require("../feature/categories/service/CategoriesService");
+const {
+  MongoCategoriesRepository,
+} = require("../feature/categories/data/MongoCategoriesRepository");
+const { CardsService } = require("../feature/cards/service/CardsService");
+const {
+  MongoCardsRepository,
+} = require("../feature/cards/data/MongoCardsRepository");
 
 const { MONGO_DB_USER, MONGO_DB_PASSWORD, MONGO_DB_CLUSTER_URL } = process.env;
 
@@ -19,19 +30,30 @@ let server;
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort(process.env.PORT || "3000");
+app.set("port", port);
 
 /**
  * Create HTTP server.
  */
 
-const uri = `mongodb+srv://${MONGO_DB_USER}:${encodeURIComponent(MONGO_DB_PASSWORD)}@${MONGO_DB_CLUSTER_URL}?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const uri = `mongodb+srv://${MONGO_DB_USER}:${encodeURIComponent(
+  MONGO_DB_PASSWORD
+)}@${MONGO_DB_CLUSTER_URL}?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 client
   .connect()
   .then((connection) => {
-    app.locals.db = connection.db('english-for-kids');
+    const db = connection.db("english-for-kids");
+
+    const categoriesRepo = new MongoCategoriesRepository(db);
+    const cardsRepo = new CardsRepo(db);
+
+    app.locals.categoriesService = new CategoriesService(categoriesRepo);
+    app.locals.cardsService = new CardsService(cardsRepo);
 
     server = http.createServer(app);
 
@@ -39,29 +61,30 @@ client
      * Listen on provided port, on all network interfaces.
      */
     server.listen(port);
-    server.on('error', onError);
-    server.on('listening', onListening);
+    server.on("error", onError);
+    server.on("listening", onListening);
 
     const terminate = () => {
-      console.log('Terminating...');
+      console.log("Terminating...");
       connection.close();
     };
 
     //do something when app is closing
-    process.once('exit', terminate);
+    process.once("exit", terminate);
 
     //catches ctrl+c event
-    process.once('SIGINT', terminate);
+    process.once("SIGINT", terminate);
 
     // catches "kill pid" (for example: nodemon restart)
-    process.once('SIGUSR1', terminate);
-    process.once('SIGUSR2', terminate);
+    process.once("SIGUSR1", terminate);
+    process.once("SIGUSR2", terminate);
 
     //catches uncaught exceptions
-    process.once('uncaughtException', terminate);
-  }).catch((e) => {
-  console.error(e);
-});
+    process.once("uncaughtException", terminate);
+  })
+  .catch((e) => {
+    console.error(e);
+  });
 
 /**
  * Normalize a port into a number, string, or false.
@@ -88,22 +111,20 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
       process.exit(1);
       break;
     default:
@@ -117,8 +138,6 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }
