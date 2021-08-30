@@ -50,7 +50,7 @@ client
     const db = connection.db("english-for-kids");
 
     const categoriesRepo = new MongoCategoriesRepository(db);
-    const cardsRepo = new CardsRepo(db);
+    const cardsRepo = new MongoCardsRepository(db);
 
     app.locals.categoriesService = new CategoriesService(categoriesRepo);
     app.locals.cardsService = new CardsService(cardsRepo);
