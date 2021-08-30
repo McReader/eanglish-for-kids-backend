@@ -28,7 +28,7 @@ export class MongoCardsRepository {
     return category.cards;
   }
 
-  async createItem(categoryId, createItemInput) {
+  createItem(categoryId, createItemInput) {
     const { imageDataUri, soundDataUri, translation, word } = createItemInput;
 
     const card = {
@@ -50,7 +50,7 @@ export class MongoCardsRepository {
     return categories.updateOne(query, updateDocument);
   }
 
-  async updateItem(categoryId, cardId, updateItemInput) {
+  updateItem(categoryId, cardId, updateItemInput) {
     const query = {
       _id: new ObjectId(categoryId),
       "cards._id": new ObjectId(cardId),
@@ -83,7 +83,7 @@ export class MongoCardsRepository {
     return categories.updateOne(query, updateDocument);
   }
 
-  async deleteItem(categoryId, cardId) {
+  deleteItem(categoryId, cardId) {
     const filter = { _id: new ObjectId(categoryId) };
     const updateDocument = { $pull: { cards: { _id: new ObjectId(cardId) } } };
     const categories = this._getCollection();
