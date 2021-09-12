@@ -1,8 +1,8 @@
 const express = require("express");
 const multer = require("multer");
-const cardsRouter = require("./cards");
+const cardsRouter = require("../../cards/controller/cards");
 
-const passport = require("../passport");
+const passport = require("../../iam/service/passport");
 
 const router = express.Router();
 const upload = multer();
