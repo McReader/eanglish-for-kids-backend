@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest --passWithNoTests"
   },
   "engines": {
     "node": "14.x"
@@ -21,5 +22,8 @@
     "passport": "^0.4.1",
     "passport-http": "^0.3.0",
     "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "jest": "^27.2.0"
   }
 }
