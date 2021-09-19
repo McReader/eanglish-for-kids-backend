@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const cardsRouter = require("../../cards/controller/cards");
+const cardsRouter = require("../../cards/controller/router");
 
 const passport = require("../../iam/service/passport");
 
