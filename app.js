@@ -8,8 +8,8 @@ const { SESSION_SECRET } = process.env;
 
 const passport = require("./feature/iam/service/passport");
 
-const authRouter = require("./feature/iam/controller/auth");
-const categoriesRouter = require("./feature/categories/controller/categories");
+const authRouter = require("./feature/iam/controller/router");
+const categoriesRouter = require("./feature/categories/controller/router");
 
 const app = express();
 
