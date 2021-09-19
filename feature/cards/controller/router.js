@@ -32,7 +32,7 @@ router.post(
   ]),
   (req, res, next) => {
     const categoryId = req.params.id;
-    const { image, sound, translation, word } = req.body;
+    const { translation, word } = req.body;
     const image = req.files.image?.[0];
     const sound = req.files.sound?.[0];
 
